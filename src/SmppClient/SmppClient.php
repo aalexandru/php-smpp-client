@@ -59,7 +59,13 @@ class SmppClient
     {
         $this->startTime = microtime();
 
-        $this->socket = socket_create_listen($this->port);
+        $this->log("Creating socket ...");
+
+        do {
+            @socket_close($this->socket);
+            $this->socket = @socket_create_listen($this->port);
+        } while (!$this->socket);
+
         socket_set_option($this->socket, SOL_SOCKET, SO_RCVTIMEO, array('sec' => self::BIND_TIMEOUT, 'usec' => 0));
         while (socket_getsockname($this->socket, $this->host)) {
             $this->log("Server listening on {$this->host}:{$this->port}");
